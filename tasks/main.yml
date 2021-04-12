@@ -435,7 +435,6 @@
 - name: Do not allow users to reuse recent passwords - system-auth (change)
   replace:
     dest: /etc/pam.d/system-auth
-    follow: true
     regexp: ^(password\s+sufficient\s+pam_unix\.so\s.*remember\s*=\s*)(\S+)(.*)$
     replace: \g<1>{{ var_password_pam_unix_remember }}\g<3>
   tags:
@@ -462,7 +461,6 @@
 - name: Do not allow users to reuse recent passwords - system-auth (add)
   replace:
     dest: /etc/pam.d/system-auth
-    follow: true
     regexp: ^password\s+sufficient\s+pam_unix\.so\s(?!.*remember\s*=\s*).*$
     replace: \g<0> remember={{ var_password_pam_unix_remember }}
   tags:
@@ -822,7 +820,6 @@
 - name: Prevent Log In to Accounts With Empty Password - system-auth
   replace:
     dest: /etc/pam.d/system-auth
-    follow: true
     regexp: nullok
   tags:
   - CCE-80841-0
@@ -850,7 +847,6 @@
 - name: Prevent Log In to Accounts With Empty Password - password-auth
   replace:
     dest: /etc/pam.d/password-auth
-    follow: true
     regexp: nullok
   tags:
   - CCE-80841-0
@@ -12825,6 +12821,7 @@
     state: present
     key: /etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
   when:
+  - ensure_redhat_gpgkey_installed | bool
   - gpg_key_directory_permission.stat.mode <= '0755'
   - (gpg_installed_fingerprints | difference(gpg_valid_fingerprints)) | length == 0
   - gpg_installed_fingerprints | length > 0
@@ -12832,7 +12829,6 @@
   - no_reboot_needed | bool
   - restrict_strategy | bool
   - high_severity | bool
-  - ensure_redhat_gpgkey_installed | bool
   - medium_complexity | bool
   - medium_disruption | bool
   tags:
